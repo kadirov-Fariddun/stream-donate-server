@@ -12,7 +12,7 @@ app.use(express.urlencoded({ extended: true }));
 const db = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: "",
+    password: "admin_artem.com",
     database: "donate",
     port: 3306
 })
