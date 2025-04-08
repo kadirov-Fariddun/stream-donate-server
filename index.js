@@ -37,7 +37,7 @@ app.get('/api/users', (req, res) => {
             return res.status(500).json({ error: 'Ошибка сервера' });
         }
 
-        res.json(results); // Возвращаем пользователей клиенту
+        res.json(results); // Возвращаем пользователей клие
     });
 });
 
