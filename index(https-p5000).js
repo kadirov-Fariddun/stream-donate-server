@@ -76,7 +76,7 @@ app.post("/api/users/create", upload.single("image"), (req, res) => {
         return res.status(400).json({ error: "Name, description и image обязательны." });
     }
 
-    const query = "INSERT INTO users (name, description, image) VALUES (?, ?, ?, ?)";
+    const query = "INSERT INTO users (name, description, image,min_amount) VALUES (?, ?, ?, ?)";
     db.query(query, [name, description, image, min_amount], (err, result) => {
         if (err) {
             console.error("Ошибка при вставке в базу данных:", err);
