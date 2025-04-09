@@ -69,15 +69,15 @@ const upload = multer({ storage: storage });
 
 // POST-запрос на создание пользователя с изображением
 app.post("/api/users/create", upload.single("image"), (req, res) => {
-    const { name, description } = req.body;
+    const { name, description, min_amount } = req.body;
     const image = req.file?.buffer;
 
     if (!name || !image) {
         return res.status(400).json({ error: "Name, description и image обязательны." });
     }
 
-    const query = "INSERT INTO users (name, description, image) VALUES (?, ?, ?)";
-    db.query(query, [name, description, image], (err, result) => {
+    const query = "INSERT INTO users (name, description, image) VALUES (?, ?, ?, ?)";
+    db.query(query, [name, description, image, min_amount], (err, result) => {
         if (err) {
             console.error("Ошибка при вставке в базу данных:", err);
             return res.status(500).json({ error: "Ошибка сервера при добавлении пользователя" });
@@ -94,7 +94,7 @@ app.delete("/api/users/delete/:id", (req, res) => {
     }
 
     const query = "DELETE FROM users WHERE id = ?";
-    
+
     db.query(query, [userId], (err, result) => {
         if (err) {
             console.error("Ошибка при удалении пользователя:", err);
@@ -176,7 +176,7 @@ app.delete('/api/wallets/delete/:id', (req, res) => {
     }
 
     const query = 'DELETE FROM `wallets` WHERE id = ?';
-    
+
     db.query(query, [walletId], (err, result) => {
         if (err) {
             console.error('Ошибка при удалении кошелька:', err);
