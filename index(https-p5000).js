@@ -4,6 +4,7 @@ import cors from 'cors';
 import multer from 'multer';
 import https from 'https';
 import fs from 'fs';
+import axios from "axios";
 
 const app = express();
 const PORT = 5000;
@@ -236,6 +237,59 @@ app.post('/api/donaters/create', (req, res) => {
     });
 });
 
+//получаем и отправляем курсы криптовалют в фронтенд 
+// Временный кэш в памяти
+const cache = {};
+
+app.post('/api/get-crypto-price', async(req, res) => {
+    const { amount, crypto } = req.body;
+
+    if (!amount || !crypto) {
+        return res.status(400).json({ error: 'Missing amount or crypto' });
+    }
+
+    const cacheKey = `price_${crypto}`;
+    const cached = cache[cacheKey];
+    const now = Date.now();
+
+    // Если кэш свежий (менее 60 секунд), возвращаем его
+    if (cached && now - cached.timestamp < 60 * 1000) {
+        const cryptoAmount = amount / cached.price;
+        console.log(`(КЭШ) 1 ${crypto.toUpperCase()} = $${cached.price}`);
+        return res.json({ amount: cached.price, cryptoAmount });
+    }
+
+    // Иначе — запрос к CoinGecko
+    try {
+        const response = await axios.get('https://api.coingecko.com/api/v3/simple/price', {
+            params: {
+                ids: crypto,
+                vs_currencies: 'usd',
+            },
+        });
+
+        const cryptoPriceInUsd = response.data[crypto]?.usd;
+
+        if (cryptoPriceInUsd === undefined) {
+            return res.status(404).json({ error: 'Price not found for ' + crypto });
+        }
+
+        // Сохраняем в кэш
+        cache[cacheKey] = {
+            price: cryptoPriceInUsd,
+            timestamp: now
+        };
+
+        const cryptoAmount = amount / cryptoPriceInUsd;
+        console.log(`1 ${crypto.toUpperCase()} = $${cryptoPriceInUsd}`);
+
+        return res.json({ amount: cryptoPriceInUsd, cryptoAmount });
+
+    } catch (error) {
+        console.error('Error fetching data:', error.message);
+        return res.status(500).json({ error: 'Failed to fetch price' });
+    }
+});
 
 
 // указываем пути к  сертификату
