@@ -2,6 +2,7 @@ import express from "express";
 import mysql from "mysql2";
 import cors from 'cors';
 import multer from 'multer';
+import axios from "axios";
 const app = express();
 const PORT = 5000;
 
