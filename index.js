@@ -68,7 +68,7 @@ const upload = multer({ storage: storage });
 // POST-запрос на создание пользователя с изображением
 app.post("/api/users/create", upload.single("image"), (req, res) => {
     const { name, description } = req.body;
-    const image = req.file ? .buffer;
+    const image = req.file ?.buffer;
 
     if (!name || !image) {
         return res.status(400).json({ error: "Name, description и image обязательны." });
